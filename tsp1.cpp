@@ -54,8 +54,6 @@ float sumdist(map<int, Location> &m, int* order){
   float tdis=0;
   for(int i=0; i<datanum-1; i++){
     tdis+= distance(m[order[i]].x, m[order[i]].y, m[order[i+1]].x, m[order[i+1]].y);
-    cout << tdis << endl;
-  //  cout << "/* message */" << endl;
   }
   tdis+= distance(m[order[0]].x, m[order[0]].y, m[order[datanum-1]].x, m[order[datanum-1]].y);
   return tdis;
@@ -93,15 +91,33 @@ int* makeorder(int* order, map<int, Location> &m, int start){
   return order;
 }
 
+float ave(map<int, Location> &m, char xory){
+  float ret=0;
+  if(xory=='x'){
+    for(int i=0; i<datanum; i++){
+    ret+= m[i].x;
+    }
+  }
+  if(xory=='y'){
+    for(int i=0; i<datanum; i++){
+    ret+= m[i].y;
+    }
+  }
+  ret= ret/datanum;
+  return ret;
+}
+
 //main
 int main(int argc, char *argv[]) {
 
   map<int, Location> city;
+  char x='x';
+  char y='y';
 
   FILE* fp=fileopen(argv[1]);
   fileread(fp, city);
 
-  Location zero= {0.0,0.0};
+  Location zero= {0.0, 0.0};
 
   int order[datanum];
   char dum[datanum];
