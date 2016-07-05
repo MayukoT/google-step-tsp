@@ -3,6 +3,7 @@
 #include<cstdio>
 #include<cerrno>
 #include<cmath>
+#include<cfloat>
 
 using namespace std;
 
@@ -51,19 +52,44 @@ void fileread(FILE* fp, map <int,Location> &m){
 //calculate total diatance
 float sumdist(map<int, Location> &m, int* order){
   float tdis=0;
-  for(int i=0; i<datanum; i++){
+  for(int i=0; i<datanum-1; i++){
     tdis+= distance(m[order[i]].x, m[order[i]].y, m[order[i+1]].x, m[order[i+1]].y);
     cout << tdis << endl;
-    cout << "/* message */" << endl;
+  //  cout << "/* message */" << endl;
   }
+  tdis+= distance(m[order[0]].x, m[order[0]].y, m[order[datanum-1]].x, m[order[datanum-1]].y);
   return tdis;
 }
 
-//the order to pass the point
-int* makeorder(int* order){
-  for (int i = 0; i < datanum; i++) {
-    order[i]= i;
+//search the nearest point (from given point)
+int searchmin(map<int, Location> &m, char* checked, Location given){
+  int minkey=-1;
+  float mindis = FLT_MAX;
+
+  for(int i=0; i<datanum; i++){
+    if(checked[i]!=1){
+      float abu= distance(given.x, given.y, m[i].x, m[i].y); //absolute value
+      if(abu<mindis){
+        minkey= i;
+        mindis=abu;
+      }
+    }
   }
+  return minkey;
+}
+
+//the order to pass the point
+int* makeorder(int* order, map<int, Location> &m, int start){
+  char checked[datanum];//when the point is checked, 1
+  int nextp;
+  for (int i = 0; i < datanum-1; i++) {
+    order[i]= start;
+    checked[start]=1;
+    nextp =searchmin(m, checked, m[start]);
+    start = nextp;
+    }
+  order[datanum-1]= nextp;
+
   return order;
 }
 
@@ -75,8 +101,13 @@ int main(int argc, char *argv[]) {
   FILE* fp=fileopen(argv[1]);
   fileread(fp, city);
 
+  Location zero= {0.0,0.0};
+
   int order[datanum];
-  float result = sumdist(city, makeorder(order));
+  char dum[datanum];
+  int start= searchmin(city, dum, zero);
+
+  float result = sumdist(city, makeorder(order, city, start));
 
   cout<< result << endl;
 
